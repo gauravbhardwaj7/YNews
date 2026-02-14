@@ -7,14 +7,14 @@
 
 import UIKit
 import CoreData
+import UserNotifications
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
-
-
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        UNUserNotificationCenter.current().delegate = self
+        NotificationService.requestPermission()
         return true
     }
 
@@ -24,6 +24,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when a new scene session is being created.
         // Use this method to select a configuration to create the new scene with.
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    }
+
+    // Show notification banner when app is in foreground (e.g. during simulation).
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .sound, .badge])
+    }
+
+    // Deep link: when user taps the notification, resolve article and set pending for the router.
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        guard response.actionIdentifier == UNNotificationDefaultActionIdentifier else {
+            completionHandler()
+            return
+        }
+        let userInfo = response.notification.request.content.userInfo
+        // userInfo values can be NSString etc.; coerce to String
+        let notificationId = (userInfo[NotificationService.notificationIdKey] as? String)
+            ?? (userInfo[NotificationService.notificationIdKey].map { String(describing: $0) })
+        guard let id = notificationId, !id.isEmpty,
+              let article = NotificationArticleStore.article(for: id) else {
+            completionHandler()
+            return
+        }
+        NotificationArticleStore.remove(notificationId: id)
+        DispatchQueue.main.async {
+            DeepLinkRouter.shared.setPendingArticle(article)
+        }
+        completionHandler()
     }
 
     func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
