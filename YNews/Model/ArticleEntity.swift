@@ -15,7 +15,8 @@ class ArticleEntity: NSManagedObject {
     @NSManaged var content:     String?
     @NSManaged var sourceName:  String?
     @NSManaged var urlToImage:  String?
-    @NSManaged var publishedAt: String?   // stores the RAW ISO-8601 string, not the formatted one
+    @NSManaged var publishedAt: String?
+    @NSManaged var urlString: String?
     @NSManaged var isBookmarked: Bool
 }
 
@@ -36,18 +37,15 @@ extension ArticleEntity {
         entity.content      = article.content
         entity.sourceName   = article.source?.name
         entity.urlToImage   = article.urlToImage
-        entity.publishedAt  = article.publishedAt   // ← raw ISO string, not publishedAtDate
+        entity.publishedAt  = article.publishedAt
         entity.isBookmarked = isBookmarked
     }
 
-    // MARK: - Fetch helpers
-
-    /// Predicate matches on the raw publishedAt string so ISO re-parsing stays intact.
     static func predicate(for article: Article) -> NSPredicate {
         NSPredicate(
             format: "title == %@ AND publishedAt == %@ AND sourceName == %@",
             article.title         ?? "",
-            article.publishedAt,          // raw ISO string matches what we stored
+            article.publishedAt,
             article.source?.name  ?? ""
         )
     }
@@ -64,12 +62,12 @@ extension ArticleEntity {
 
     func toArticle() -> Article {
         Article(
-            title:       title,                 // stays nil-safe — Article.title is String?
+            title:       title ?? "",
             description: desc,
-            content:     content,               // Article.content is String?
-            source:      .init(name: sourceName ?? ""),
+            content:     content,
+            source:      .init(name: sourceName ?? ""), url: urlString,
             urlToImage:  urlToImage,
-            publishedAt: publishedAt ?? ""      // raw ISO string → publishedAtDate computed var works correctly
+            publishedAt: publishedAt ?? ""
         )
     }
 }

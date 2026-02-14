@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24512" systemVersion="25C56" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="ArticleEntity" representedClassName="ArticleEntity" syncable="YES" codeGenerationType="none">
+    <entity name="ArticleEntity" representedClassName="ArticleEntity" syncable="YES">
         <attribute name="content" optional="YES" attributeType="String"/>
         <attribute name="desc" optional="YES" attributeType="String"/>
-        <attribute name="isBookmarked" optional="NO" attributeType="Boolean" defaultValueString="NO"/>
+        <attribute name="isBookmarked" attributeType="Boolean" defaultValueString="NO"/>
         <attribute name="publishedAt" optional="YES" attributeType="String"/>
         <attribute name="sourceName" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="urlString" optional="YES" attributeType="String"/>
         <attribute name="urlToImage" optional="YES" attributeType="String"/>
     </entity>
 </model>

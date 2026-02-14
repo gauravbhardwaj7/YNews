@@ -40,6 +40,7 @@ struct Article: Codable, Equatable {
     let description: String?
     let content: String?
     let source: Source?
+    let url: String?
     let urlToImage: String?
     let publishedAt: String
 

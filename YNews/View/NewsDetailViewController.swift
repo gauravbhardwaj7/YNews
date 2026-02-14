@@ -77,6 +77,24 @@ class NewsDetailViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         configureWithArticle()
+        setupNavigationBar()
+    }
+    
+    private func setupNavigationBar() {
+        let shareButton = UIBarButtonItem(
+            barButtonSystemItem: .action,
+            target: self,
+            action: #selector(shareButtonTapped)
+        )
+        navigationItem.rightBarButtonItem = shareButton
+    }
+    
+    @objc private func shareButtonTapped() {
+        ShareSheetManager.shared.shareArticle(
+            article,
+            from: self,
+            sourceView: navigationItem.rightBarButtonItem?.value(forKey: "view") as? UIView
+        )
     }
     
     private var hasImage: Bool {
@@ -155,4 +173,3 @@ class NewsDetailViewController: UIViewController {
         }
     }
 }
-
