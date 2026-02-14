@@ -200,7 +200,4 @@ open NewsApp.xcodeproj
 - The free tier also does not support all sorting and filtering options that would enable features like top headlines by category.
 
 ---
-
-## 📄 License
-
-MIT License — see [LICENSE](LICENSE) for details.
+ 
