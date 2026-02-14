@@ -16,17 +16,44 @@ class ViewController: UIViewController {
 
 
     private lazy var searchTextField: UITextField = {
+
         let tf = UITextField()
         tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.placeholder   = "Search here"
-        tf.borderStyle   = .roundedRect
+        
+        tf.placeholder = "Search articles"
+        tf.returnKeyType = .search
         tf.delegate = self
         tf.clearButtonMode = .whileEditing
-        tf.layer.cornerRadius = 8
-        tf.layer.backgroundColor = .init(gray: 0.1, alpha: 0.1)
+        
+        tf.font = .systemFont(ofSize: 16, weight: .regular)
+        tf.textColor = .label
+        
+        tf.borderStyle = .none
+        
+        tf.backgroundColor = .secondarySystemBackground
+        tf.layer.cornerRadius = 12
+        tf.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        let icon = UIImageView(image: UIImage(systemName: "magnifyingglass"))
+        icon.tintColor = .secondaryLabel
+        icon.contentMode = .scaleAspectFit
+        icon.frame = CGRect(x: 12, y: 0, width: 20, height: 20)
+        
+        let leftView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 44))
+        leftView.addSubview(icon)
+        icon.center = leftView.center
+        
+        tf.leftView = leftView
+        tf.leftViewMode = .always
+        
+        let rightPadding = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 44))
+        tf.rightView = rightPadding
+        tf.rightViewMode = .unlessEditing
+        
         tf.addTarget(self, action: #selector(didSearchFieldChanged(_:)), for: .editingChanged)
+        
         return tf
     }()
+
 
 
     private lazy var inlineBannerView: UIView = {
@@ -181,6 +208,11 @@ class ViewController: UIViewController {
             name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handlePendingDeepLinkNotification),
             name: DeepLinkRouter.didSetPendingArticleNotification, object: nil)
+
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+
     }
 
     deinit { NotificationCenter.default.removeObserver(self) }
@@ -501,8 +533,22 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegate, 
     }
 
     @objc private func didSearchFieldChanged(_ tf: UITextField) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { self.viewModel.query = tf.text }
+
+        if tf.text?.isEmpty == true {
+            viewModel.query = nil
+            tf.resignFirstResponder()
+
+            Task {
+                await viewModel.pullToRefresh()
+            }
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.viewModel.query = tf.text
+        }
     }
+
 
     @objc private func didPulledToRefresh() {
         guard viewModel.isOnline else {
@@ -525,14 +571,29 @@ private extension UIAlertController {
     }
 }
 
+extension ViewController: UITextFieldDelegate{
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
 
-extension ViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        viewModel.query = textField.text
+        return true
+    }
+    
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
         viewModel.query = nil
-        textField.resignFirstResponder()
         Task {
             await viewModel.pullToRefresh()
         }
+        DispatchQueue.main.async {
+            textField.resignFirstResponder()
+        }
+
         return true
     }
+
 }
+
+

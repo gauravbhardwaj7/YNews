@@ -13,153 +13,163 @@ protocol NewsCellViewDelegate: AnyObject {
     func newsCellDidTapBookmark(_ cell: NewsCellView, article: Article)
 }
 
-class NewsCellView: UICollectionViewCell{
+class NewsCellView: UICollectionViewCell {
+
     weak var delegate: NewsCellViewDelegate?
     private var article: Article?
     private var currentImageURL: URL?
-    
-    private lazy var title: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .headline)
-        label.textColor = .label
-        label.numberOfLines = 2
-        label.setContentHuggingPriority(.init(1), for: .horizontal)
-        return label
-    }()
-    
-    
-    private lazy var sourceLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .preferredFont(forTextStyle: .subheadline)
-        label.textColor = .secondaryLabel
-        label.numberOfLines = 0
-        return label
-    }()
-    
+
+
     private static let placeholderImage = UIImage(systemName: "photo")
-    
+
     private lazy var newsImage: UIImageView = {
         let imageView = UIImageView()
         imageView.image = Self.placeholderImage
         imageView.tintColor = .secondaryLabel
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 8
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.widthAnchor.constraint(equalToConstant: 64).isActive = true
-        imageView.heightAnchor.constraint(equalToConstant: 64).isActive = true
+        imageView.widthAnchor.constraint(equalToConstant: 72).isActive = true
+        imageView.heightAnchor.constraint(equalToConstant: 72).isActive = true
         return imageView
     }()
-    
+
+    private lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .preferredFont(forTextStyle: .headline)
+        label.numberOfLines = 2
+        label.textColor = .label
+        return label
+    }()
+
+    private lazy var sourceLabel: UILabel = {
+        let label = UILabel()
+        label.font = .preferredFont(forTextStyle: .subheadline)
+        label.textColor = .secondaryLabel
+        return label
+    }()
+
     private lazy var dateLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 2
-        label.textColor = .secondaryLabel
         label.font = .preferredFont(forTextStyle: .caption1)
+        label.textColor = .tertiaryLabel
         return label
     }()
 
     private lazy var bookmarkButton: UIButton = {
         let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(systemName: "bookmark"), for: .normal)
-        button.addTarget(self, action: #selector(bookmarkButtonTapped), for: .touchUpInside)
         button.tintColor = .systemBlue
+        button.addTarget(self, action: #selector(bookmarkButtonTapped), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.widthAnchor.constraint(equalToConstant: 40).isActive = true
         return button
     }()
-    
+
+    private lazy var metaStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [sourceLabel, dateLabel])
+        stack.axis = .horizontal
+        stack.spacing = 6
+        stack.alignment = .center
+        return stack
+    }()
+
+    private lazy var textStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [titleLabel, metaStack])
+        stack.axis = .vertical
+        stack.spacing = 6
+        stack.alignment = .fill
+        return stack
+    }()
+
+    private lazy var mainStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [newsImage, textStack, bookmarkButton])
+        stack.axis = .horizontal
+        stack.spacing = 12
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+
     private lazy var separatorView: UIView = {
         let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .systemGray5
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.heightAnchor.constraint(equalToConstant: 1).isActive = true
         return view
     }()
 
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.contentView.addSubview(title)
-        self.contentView.addSubview(sourceLabel)
-        self.contentView.addSubview(newsImage)
-        self.contentView.addSubview(dateLabel)
-        self.contentView.addSubview(bookmarkButton)
-        self.contentView.addSubview(separatorView)
 
-        
+        contentView.addSubview(mainStack)
+        contentView.addSubview(separatorView)
+
         NSLayoutConstraint.activate([
-            newsImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: .spacing_2),
-            newsImage.topAnchor.constraint(equalTo: contentView.topAnchor, constant: .spacing_2),
+            mainStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            mainStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            mainStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            mainStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
 
-            title.leadingAnchor.constraint(equalTo: newsImage.trailingAnchor, constant: .spacing_2),
-            title.trailingAnchor.constraint(equalTo: bookmarkButton.leadingAnchor, constant: -.spacing_2),
-
-            sourceLabel.topAnchor.constraint(equalTo: title.bottomAnchor, constant: .spacing_1),
-            sourceLabel.leadingAnchor.constraint(equalTo: title.leadingAnchor),
-
-            dateLabel.topAnchor.constraint(equalTo: sourceLabel.topAnchor),
-            dateLabel.leadingAnchor.constraint(equalTo: sourceLabel.trailingAnchor, constant: .spacing_2),
-            dateLabel.trailingAnchor.constraint(equalTo: bookmarkButton.leadingAnchor, constant: -.spacing_2),
-            dateLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -.spacing_2),
-
-            bookmarkButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: .spacing_2),
-            bookmarkButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -.spacing_2),
-            bookmarkButton.widthAnchor.constraint(equalToConstant: 44),
-            bookmarkButton.heightAnchor.constraint(equalToConstant: 44),
-
-
-            separatorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: .spacing_2),
-            separatorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -.spacing_2),
-            separatorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            separatorView.heightAnchor.constraint(equalToConstant: 1)
+            separatorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            separatorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            separatorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellTapped))
         contentView.addGestureRecognizer(tapGesture)
-        contentView.isUserInteractionEnabled = true
-    }
-    
-    @objc private func cellTapped() {
-        guard let article = article else { return }
-        delegate?.newsCellDidTap(self, article: article)
     }
 
-    @objc private func bookmarkButtonTapped() {
-        guard let article = article else { return }
-        delegate?.newsCellDidTapBookmark(self, article: article)
-    }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    // MARK: - Reuse
+
     override func prepareForReuse() {
         super.prepareForReuse()
         newsImage.image = Self.placeholderImage
         currentImageURL = nil
     }
-    
+
+    // MARK: - Actions
+
+    @objc private func cellTapped() {
+        guard let article else { return }
+        delegate?.newsCellDidTap(self, article: article)
+    }
+
+    @objc private func bookmarkButtonTapped() {
+        guard let article else { return }
+        delegate?.newsCellDidTapBookmark(self, article: article)
+    }
+
+    // MARK: - Data
+
     func setData(article: Article, isBookmarked: Bool = false) {
         self.article = article
-        self.title.text = article.title
-        bookmarkButton.setImage(UIImage(systemName: isBookmarked ? "bookmark.fill" : "bookmark"), for: .normal)
-        self.dateLabel.text = article.publishedAtDate
-        self.sourceLabel.text = article.source?.name
+
+        titleLabel.text = article.title
+        sourceLabel.text = article.source?.name
+        dateLabel.text = article.publishedAtDate
+        bookmarkButton.setImage(
+            UIImage(systemName: isBookmarked ? "bookmark.fill" : "bookmark"),
+            for: .normal
+        )
+
         newsImage.image = Self.placeholderImage
-        
-        guard let urlString = article.urlToImage, let url = URL(string: urlString) else {
-            return
-        }
-        
+
+        guard let urlString = article.urlToImage,
+              let url = URL(string: urlString) else { return }
+
         currentImageURL = url
-        
+
         ImageLoader.shared.loadImage(from: url) { [weak self] image in
             guard let self = self else { return }
             guard self.currentImageURL == url else { return }
-            
             self.newsImage.image = image ?? Self.placeholderImage
         }
     }
-    
 }
