@@ -4,7 +4,10 @@ News app built entirely with **UIKit** and **Swift**, following clean **MVVM** a
 
 ---
 
-## ✨ Features
+## Video
+https://drive.google.com/file/d/1dXpS1HIESk3V8XEVESWhnG-o22QR0013/view
+
+## Features
 
 ### 1. 📋 News Feed
 - Articles fetched from [NewsAPI.org](https://newsapi.org)
