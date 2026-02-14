@@ -168,7 +168,7 @@ class ViewController: UIViewController {
 
 
     private lazy var collectionView: UICollectionView = {
-        let size  = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(80))
+        let size  = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100))
         let item  = NSCollectionLayoutItem(layoutSize: size)
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: [item])
         group.interItemSpacing = .fixed(.spacing_5)

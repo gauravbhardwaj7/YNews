@@ -30,8 +30,8 @@ class NewsCellView: UICollectionViewCell {
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 8
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.widthAnchor.constraint(equalToConstant: 72).isActive = true
-        imageView.heightAnchor.constraint(equalToConstant: 72).isActive = true
+        imageView.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        imageView.heightAnchor.constraint(equalToConstant: 60).isActive = true
         return imageView
     }()
 
@@ -71,7 +71,7 @@ class NewsCellView: UICollectionViewCell {
         let stack = UIStackView(arrangedSubviews: [sourceLabel, dateLabel])
         stack.axis = .horizontal
         stack.spacing = 6
-        stack.alignment = .center
+        stack.alignment = .top
         return stack
     }()
 

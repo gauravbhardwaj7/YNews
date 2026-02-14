@@ -23,7 +23,7 @@ class NewsRemoteRepository: NewsRepository {
             .init(name: "sortBy", value: "publishedAt"),
             .init(name: "page", value: String(page)),
             .init(name: "pageSize", value: String(pageSize)),
-            .init(name: "apiKey", value: "edf034029f3d4aafa0c36ecd9db9ad81")
+            .init(name: "apiKey", value: "029221a5d74a4d94a5fcc8a66c7baa06")
         ]
         
         guard let url = components?.url else { throw URLError(.badURL) }
