@@ -19,7 +19,6 @@ class NewsRemoteRepository: NewsRepository {
         let searchQuery = (query?.isEmpty == false) ? query! : "tesla"
         components?.queryItems = [
             .init(name: "q", value: searchQuery),
-            .init(name: "from", value: "2026-01-14"),
             .init(name: "sortBy", value: "publishedAt"),
             .init(name: "page", value: String(page)),
             .init(name: "pageSize", value: String(pageSize)),
